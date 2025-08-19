@@ -14,9 +14,12 @@ class Vin(Base):
     model_year = Column(Integer, nullable=True)
     plant = Column(String(1), nullable=True)
     valid_check_digit = Column(Boolean, nullable=True)
+    make = Column(String, nullable=True)
+    model = Column(String, nullable=True)
     decoded_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     images = relationship("VinImage", back_populates="vin_ref", cascade="all, delete-orphan")
+    nhtsa_data = relationship("NHTSADecodedData", back_populates="vin_ref", cascade="all, delete-orphan")
 
 
 class VinImage(Base):
@@ -30,3 +33,15 @@ class VinImage(Base):
 
     vin_ref = relationship("Vin", back_populates="images")
 
+
+class NHTSADecodedData(Base):
+    __tablename__ = "nhtsa_decoded_data"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    vin = Column(String(17), ForeignKey("vins.vin", ondelete="CASCADE"), index=True, nullable=False)
+    variable = Column(String, nullable=False)
+    value = Column(String, nullable=True)
+    variable_id = Column(Integer, nullable=True)
+    value_id = Column(String, nullable=True)
+
+    vin_ref = relationship("Vin", back_populates="nhtsa_data")

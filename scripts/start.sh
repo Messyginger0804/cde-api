@@ -47,10 +47,38 @@ EOF
   echo "Created default .env with API_TOKEN=devtoken"
 fi
 
-# Default to a local SQLite DB for quick runs if DATABASE_URL isn't set
-export DATABASE_URL=${DATABASE_URL:-sqlite:///./dev.db}
+# Load .env if present so PG* vars apply
+if [[ -f .env ]]; then
+  set -a; source .env; set +a
+fi
+
+# Ensure Postgres config is present; either DATABASE_URL or PG* vars
+if [[ -z "${DATABASE_URL:-}" ]]; then
+  # If user filled PG* in .env, build DATABASE_URL
+  PGHOST_DEFAULT=${PGHOST:-127.0.0.1}
+  PGPORT_DEFAULT=${PGPORT:-5432}
+  if [[ -n "${PGUSER:-}" && -n "${PGPASSWORD:-}" && -n "${PGDATABASE:-}" ]]; then
+    export DATABASE_URL="postgresql+psycopg2://${PGUSER}:${PGPASSWORD}@${PGHOST_DEFAULT}:${PGPORT_DEFAULT}/${PGDATABASE}"
+  else
+    # Create a skeleton .env if missing or incomplete, then exit with guidance
+    if ! grep -q '^PGUSER=' .env 2>/dev/null; then
+      cat >> .env <<'EOF'
+# PostgreSQL connection settings (fill these and rerun)
+PGHOST=127.0.0.1
+PGPORT=5432
+PGUSER=
+PGPASSWORD=
+PGDATABASE=
+EOF
+      echo "Created/updated .env with PG* placeholders."
+    fi
+    echo "DATABASE_URL not set and PGUSER/PGPASSWORD/PGDATABASE not provided."
+    echo "Please edit .env with your Postgres credentials or set DATABASE_URL."
+    exit 1
+  fi
+fi
 
 echo "Starting API on http://${HOST}:${PORT} (docs at /docs)"
-echo "DATABASE_URL=${DATABASE_URL}"
+echo "Using DATABASE_URL (PostgreSQL)"
 
 exec uvicorn app.main:app --reload --host "$HOST" --port "$PORT"

@@ -5,3 +5,4 @@ SQLAlchemy>=2.0
 psycopg2-binary
 python-multipart
 python-dotenv
+httpx

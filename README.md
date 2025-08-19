@@ -10,9 +10,21 @@ Simple FastAPI service for decoding VINs and serving associated images.
 
 Auth and DB are configured via environment (auto-creates `.env` on first run):
 
+You must configure PostgreSQL credentials. Either set a full `DATABASE_URL` or fill the PG* variables:
+
 ```bash
-export API_TOKEN=devtoken
+# Option A: Single URL
 export DATABASE_URL=postgresql+psycopg2://USER:PASSWORD@HOST:5432/DBNAME
+
+# Option B: Individual parts (script/app will build DATABASE_URL)
+export PGHOST=127.0.0.1
+export PGPORT=5432
+export PGUSER=postgres
+export PGPASSWORD=yourpassword
+export PGDATABASE=cde
+
+# API token (defaults to devtoken if unset)
+export API_TOKEN=devtoken
 ```
 
 ## Endpoints
@@ -24,6 +36,8 @@ export DATABASE_URL=postgresql+psycopg2://USER:PASSWORD@HOST:5432/DBNAME
 A sample VIN `1M8GDM9AXKP042788` is included with an in-memory placeholder image.
 
 Open interactive docs at `http://127.0.0.1:8000/docs`.
+
+Note: SQLite fallback has been removed; the app requires PostgreSQL.
 
 ## Auth
 

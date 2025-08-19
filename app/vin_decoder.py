@@ -153,3 +153,97 @@ def decode_vin(vin: str) -> Dict[str, str]:
         "plant": plant,
     }
     return {k: v for k, v in data.items() if v is not None or k in {"vin", "wmi", "vds", "vis"}}
+
+
+def get_make_from_wmi(wmi: str) -> Optional[str]:
+    """Basic lookup for car make based on WMI."""
+    wmi_to_make = {
+        "1G1": "Chevrolet",
+        "1G2": "Pontiac",
+        "1GC": "Chevrolet",
+        "1GT": "GMC",
+        "2G1": "Chevrolet",
+        "2G2": "Pontiac",
+        "3G1": "Chevrolet",
+        "3G2": "Pontiac",
+        "4F2": "Mazda",
+        "4M0": "Mercury",
+        "5J6": "Honda",
+        "JA3": "Mitsubishi",
+        "JF1": "Subaru",
+        "JM1": "Mazda",
+        "JSA": "Suzuki",
+        "KNA": "Kia",
+        "LDC": "Honda",
+        "LTV": "Toyota",
+        "LVV": "Chery",
+        "LSJ": "MG",
+        "MAJ": "Mazda",
+        "MNT": "Nissan",
+        "NMT": "Nissan",
+        "NM0": "Nissan",
+        "PE1": "Ford",
+        "PL1": "Hyundai",
+        "RL1": "Renault",
+        "SAD": "Land Rover",
+        "SAJ": "Jaguar",
+        "SAL": "Land Rover",
+        "SAR": "Audi",
+        "SAT": "Toyota",
+        "SCA": "Scania",
+        "SCC": "Lotus",
+        "SCE": "Fiat",
+        "SCF": "Ferrari",
+        "SCL": "Mercedes-Benz",
+        "SCM": "Mercedes-Benz",
+        "SCN": "Porsche",
+        "SCO": "Skoda",
+        "SCP": "Porsche",
+        "SCT": "Toyota",
+        "SFD": "Ford",
+        "SHH": "Honda",
+        "SHS": "Honda",
+        "SIT": "Toyota",
+        "SJK": "Nissan",
+        "SJN": "Nissan",
+        "SKF": "Skoda",
+        "TMA": "Hyundai",
+        "TMB": "Skoda",
+        "TRU": "Audi",
+        "U5Y": "Kia",
+        "VF1": "Renault",
+        "VF3": "Peugeot",
+        "VF7": "Citroen",
+        "VSS": "Seat",
+        "WBA": "BMW",
+        "WDB": "Mercedes-Benz",
+        "WMA": "BMW",
+        "WME": "Mercedes-Benz",
+        "WVW": "Volkswagen",
+        "XMC": "Mitsubishi",
+        "XTA": "Lada",
+        "YK1": "Saab",
+        "YS3": "Saab",
+        "ZFA": "Fiat",
+        "ZFF": "Ferrari",
+        "ZHW": "Lamborghini",
+        "ZOM": "Mercedes-Benz",
+    }
+    return wmi_to_make.get(wmi.upper())
+
+
+if __name__ == "__main__":
+    # Example usage:
+    vin_number = "1M8GDM9A0KP042788"  # Example VIN
+    decoded_data = decode_vin(vin_number)
+    print(decoded_data)
+
+    vin_number_invalid = "1M8GDM9A0KP04278"  # Invalid length
+    try:
+        decode_vin(vin_number_invalid)
+    except ValueError as e:
+        print(f"Error: {e}")
+
+    vin_number_bad_chars = "1M8GDM9A0KO042788"  # Contains 'O'
+    decoded_data_bad_chars = decode_vin(vin_number_bad_chars)
+    print(decoded_data_bad_chars)
